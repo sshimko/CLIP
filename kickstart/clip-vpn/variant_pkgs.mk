@@ -1,8 +1,9 @@
 PACKAGES += \
++anaconda-dracut \
 cacti \
 clip-dracut-module \
 clip-miscfiles \
-clip-selinux-policy \
+selinux-policy \
 configure_strongswan \
 livecd-tools \
 pungi \
