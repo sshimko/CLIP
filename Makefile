@@ -18,6 +18,7 @@ include CONFIG_BUILD
 
 # This is the RHEL version supported by this release of CLIP.  Do not alter.
 export RHEL_VER := 7
+export CENTOS_VER := 7
 
 ######################################################
 # BEGIN MAGIC
@@ -216,7 +217,7 @@ define MAKE_LIVE_TOOLS
 	rpm2cpio $(TOOLS_DIR)/livecd-tools-$(LIVECD_VERSION).noarch.rpm > $(TOOLS_DIR)/livecd-tools-$(LIVECD_VERSION).noarch.rpm.cpio; \
 	rpm2cpio $(TOOLS_DIR)/python-imgcreate-$(LIVECD_VERSION).noarch.rpm > $(TOOLS_DIR)/python-imgcreate-$(LIVECD_VERSION).noarch.rpm.cpio; \
 	cd $(TOOLS_DIR) && cpio -idv < livecd-tools-$(LIVECD_VERSION).noarch.rpm.cpio && \
-	cpio -idv < python-imgcreate-$(LIVECD_VERSION).noarch.rpm.cpio;
+	cpio -idv < python-imgcreate-$(LIVECD_VERSION).noarch.rpm.cpio
 endef
 
 define MAKE_PUNGI
