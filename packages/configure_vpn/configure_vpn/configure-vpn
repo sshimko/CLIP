@@ -6,7 +6,7 @@
 . /etc/rc.d/init.d/functions
 . /usr/bin/vpn_funcs.sh
 
-WORKDIR="/tmp/strongswan"
+WORKDIR="/tmp/libreswan"
 CA_KEY="$WORKDIR/rootCA.key"
 CA_PEM="$WORKDIR/ca.pem"
 CA_P12="$WORKDIR/ca.crt"

@@ -9,7 +9,7 @@ def err(msg):
 
 def main():
 	try:
-		print "configure strongswan"
+		print "configure vpn"
 		#expect the following:
 		#line 1: ike version
 
@@ -24,7 +24,7 @@ def main():
 		else:
 			err("invalid ike line")
 
-		rv = subprocess.call([ "/usr/bin/add_ss_user", ike])
+		rv = subprocess.call([ "/usr/bin/add_vpn_user", ike])
 		if rv != 0:
 			err("something went wrong :(")
 		else:

@@ -1,7 +1,7 @@
 Name:	%{pkgname}
 Version: %{version}
 Release: %{release}
-Summary: Strongswan configuration utilities.
+Summary: CLIP vpn configuration utilities.
 Requires: kernel
 
 License: GPL or BSD
@@ -13,7 +13,7 @@ BuildRoot: %{_tmppath}/%{name}-root
 Source0: %{pkgname}-%{version}.tgz
 
 %description
-This package contains utilities for configuring strongswan
+This package contains utilities for configuring CLIP vpn
 
 %prep
 %setup -q -n %{pkgname}
@@ -30,16 +30,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(6755,root,root,-)
-/usr/bin/add_ss_user
+/usr/bin/add_vpn_user
 %defattr(755,root,root,-)
-/etc/init.d/configure-strongswan
+/etc/init.d/configure-vpn
 /usr/bin/add_vpn_user.sh
-/usr/bin/gen_word.py
-/usr/bin/strongswan_login.py
+/usr/bin/gen_word.sh
+/usr/bin/vpn_login.py
 /usr/bin/vpn_funcs.sh
 
 %post
 
 %changelog
+* Thu Jul 28 2016 Quentin Swain <quentin@quarksecurity.com> 1-2
+- Configure vpn spec file 
 * Tue Apr 21 2014 Pat McClory <pat@quarksecurity.com> 1-1
 - Configure strongswan Spec file

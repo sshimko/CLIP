@@ -4,6 +4,6 @@ cacti \
 clip-dracut-module \
 clip-miscfiles \
 selinux-policy \
-configure_strongswan \
+configure_vpn \
 livecd-tools \
 pungi

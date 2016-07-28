@@ -4,7 +4,7 @@
 #
 
 # The name of the package
-PKGNAME := configure_strongswan
+PKGNAME := configure_vpn
 
 # This is the version number of the RPM that will be
 # generated.  Typically you bump this for delivery.

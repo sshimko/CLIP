@@ -63,6 +63,7 @@ selinux-policy
 selinux-policy-mcs
 clip-miscfiles
 libreswan
+configure_vpn
 
 %end
 
@@ -301,7 +302,7 @@ EOF
 #####IPtables End Configuration#####
 
 # turn on the configure-strongswan service
-chkconfig --level 34 configure-strongswan on
+chkconfig --level 34 configure-vpn on
 
 # Turn strongswan on in AWS as it will be configured by the scripts above.
 chkconfig libreswan on

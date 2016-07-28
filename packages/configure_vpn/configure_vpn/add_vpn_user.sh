@@ -100,4 +100,4 @@ rm -rf $WORKDIR
 chown -R sftp:sftp $OUTDIR
 
 #restart strongswan
-service strongswan restart
+service libreswan restart
