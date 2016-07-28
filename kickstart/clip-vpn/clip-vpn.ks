@@ -61,12 +61,8 @@ selinux-policy
 # by default use MCS policy (selinux-policy-clip)
 -selinux-policy-mls
 selinux-policy-mcs
-#selinux-policy-mcs-ssh
-#selinux-policy-mcs-unprivuser
-#selinux-policy-mcs-ec2ssh
-#selinux-policy-mcs-config-strongswan
-#selinux-policy-mcs-vpnadm
 clip-miscfiles
+libreswan
 
 %end
 
@@ -308,7 +304,7 @@ EOF
 chkconfig --level 34 configure-strongswan on
 
 # Turn strongswan on in AWS as it will be configured by the scripts above.
-chkconfig strongswan on
+chkconfig libreswan on
 
 PASSWORD="neutronbass"
 HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'

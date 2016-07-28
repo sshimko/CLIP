@@ -6,5 +6,4 @@ clip-miscfiles \
 selinux-policy \
 configure_strongswan \
 livecd-tools \
-pungi \
-strongswan
+pungi
