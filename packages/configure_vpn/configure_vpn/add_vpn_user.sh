@@ -12,11 +12,12 @@ WORKDIR=/tmp/add_vpn_user
 CLIENT_KEY=$WORKDIR/$CONN_NAME.key
 CLIENT_PEM=$WORKDIR/$CONN_NAME.pem
 CLIENT_P12=$WORKDIR/$CONN_NAME.p12
-CA_PEM=/etc/strongswan/ipsec.d/cacerts/ca.pem
-CA_KEY=/etc/strongswan/ipsec.d/private/rootCA.key
-CA_P12=/etc/strongswan/ipsec.d/cacerts/ca.crt
-CERTDIR=/etc/strongswan/ipsec.d/certs/
-PRIVATEDIR=/etc/strongswan/ipsec.d/private
+CA_PEM=/etc/ipsec.d/cacerts/ca.pem
+IPSEC_DIR=/etc/ipsec.d/
+CA_KEY=/etc/ipsec.d/private/rootCA.key
+CA_P12=/etc/ipsec.d/cacerts/ca.crt
+CERTDIR=/etc/ipsec.d/certs/
+PRIVATEDIR=/etc/ipsec.d/private
 CA_PASSWD_FILE=$PRIVATEDIR/ca_pass.txt
 CA_PASSWD=`cat $CA_PASSWD_FILE`
 DAYS=1024
@@ -24,16 +25,6 @@ REQUEST=$WORKDIR/request.csr
 
 gen_key() {
         openssl genrsa -passout pass:$2 -out $1 4096
-}
-
-# args:
-# $1 - key
-# $2 - key password
-# $3 - subject
-# $4 - output file
-ca_sign() {
-        openssl req -new -key $1 -out $REQUEST -subj "$3" -passin pass:$2
-        openssl x509 -req -in $REQUEST -CA $CA_PEM -CAkey $CA_KEY -CAcreateserial -out $4 -days $DAYS -passin pass:$CA_PASSWD
 }
 
 # arg1 is 1 for IKEV1 2 for IKEv2
@@ -45,9 +36,9 @@ fi
 
 
 mkdir -p $WORKDIR
-gen_key $CLIENT_KEY $CLIENT_PASSWD
-ca_sign $CLIENT_KEY $CLIENT_PASSWD "$CLIENT_SUBJ" $CLIENT_PEM
-openssl pkcs12 -export -out $CLIENT_P12 -inkey $CLIENT_KEY -in $CLIENT_PEM -passin pass:$CLIENT_PASSWD -passout pass:$CLIENT_PASSWD
+cert_gen $CLIENT_KEY $CLIENT_PASSWD "$CLIENT_SUBJ" $CLIENT_PEM
+p12util -n "$CLIENT_SUBJ" -d $SWAN_DB_URI -W "$CLIENT_PASSWD" -o $CLIENT_P12
+certutil -L -n "CLIP-CA" -d $SWAN_DB_URI -a > $CA_P12
 
 XAUTH_INFO=""
 XAUTH_USER=""
@@ -59,7 +50,7 @@ then
         ike=aes256-sha1-modp1024!\n\
         esp=aes256-sha1!\n\
         keyexchange=ikev1\n\
-        rightcert=$CONN_NAME.pem\n\
+        rightcert=$CLIENT_SUBJ\n\
         rightauth2=xauth\n"
 
 	gen_random_word XAUTH_USER
@@ -71,14 +62,14 @@ else
         ike=aes256-sha256-ecp384!\n\
         esp=aes256-aes128-sha384-sha256-ecp384-ecp256!\n\
         keyexchange=ikev2\n\
-        rightcert=$CONN_NAME.pem\n"
+        rightcert=$CLIENT_SUBJ\n"
 fi
 
-echo -e "$CONN" >> /etc/strongswan/ipsec.conf
+echo -e "$CONN" >> /etc/ipsec.conf
 
 if [ "$XAUTH_INFO""x" != "x" ]
 then
-	echo -e "$XAUTH_INFO" >> /etc/strongswan/ipsec.secrets
+	echo -e "$XAUTH_INFO" >> /etc/ipsec.secrets
 fi
 
 OUTDIR=/home/sftp/android_certs/
@@ -89,7 +80,6 @@ rm -rf $OUTDIR
 mkdir -p $OUTDIR
 cp $CLIENT_P12 $OUTDIR
 cp $CA_P12 $OUTDIR
-cp $CLIENT_PEM $CERTDIR
 echo $CLIENT_PASSWD > $CLIENT_PASSWD_FILE
 if [ $1"x" == "1x" ]
 then
@@ -100,4 +90,5 @@ rm -rf $WORKDIR
 chown -R sftp:sftp $OUTDIR
 
 #restart strongswan
-service libreswan restart
+ipsec whack --rereadall
+ipsec addconn --addall

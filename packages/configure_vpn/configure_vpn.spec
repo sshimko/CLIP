@@ -3,6 +3,8 @@ Version: %{version}
 Release: %{release}
 Summary: CLIP vpn configuration utilities.
 Requires: kernel
+Requires: libreswan
+Requires: nss-tools
 
 License: GPL or BSD
 Group: System Environment/Base
@@ -33,6 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/add_vpn_user
 %defattr(755,root,root,-)
 /etc/init.d/configure-vpn
+/etc/systemd/system/configure-vpn.service
 /usr/bin/add_vpn_user.sh
 /usr/bin/gen_word.sh
 /usr/bin/vpn_login.py
@@ -42,6 +45,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Jul 28 2016 Quentin Swain <quentin@quarksecurity.com> 1-2
-- Configure vpn spec file 
+- Update package to support libreswan
 * Tue Apr 21 2014 Pat McClory <pat@quarksecurity.com> 1-1
 - Configure strongswan Spec file

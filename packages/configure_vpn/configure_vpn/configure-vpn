@@ -24,22 +24,13 @@ gen_passwd SERVER_PASSWD
 
 #TODO allow the user to specify the subnet to use - definitely need this
 RIGHT_IP="192.168.31.0\/24"
-STRONGSWANDIR=/etc/strongswan
-IPSECDIR=$STRONGSWANDIR/ipsec.d
+IPSECDIR=/etc/ipsec.d
 CERTDIR=$IPSECDIR/certs
 PRIVATEDIR=$IPSECDIR/private
 CA_PASSWD_FILE=$PRIVATEDIR/ca_pass.txt
 CACERTDIR=$IPSECDIR/cacerts
-DAYS=1024
-KEYSIZE=4096
 
 install_files() {
-	cp $CA_PEM $CACERTDIR
-	cp $SERVER_PEM $CERTDIR
-	cp $SERVER_KEY $PRIVATEDIR
-	cp $CA_KEY $PRIVATEDIR
-	cp $IPSEC_CONF $STRONGSWANDIR
-	cp $IPSEC_SECRETS $STRONGSWANDIR
 	cp $CA_P12 $CACERTDIR
 	echo $CA_PASSWD > $CA_PASSWD_FILE
 }
@@ -49,21 +40,13 @@ gen_key() {
 	openssl genrsa -passout pass:$2 -out $1 $KEYSIZE
 }
 
+# Create a self signed CA cert
 # args $1 - filename, $2 keyfile, $3 subject
 self_sign() {
-	openssl req -x509 -new -nodes -key $2 -days $DAYS -out $1 -subj "$3"
-	openssl x509 -inform PEM -outform DER -in $1 -out $CA_P12
+	certutil -S -k rsa -n "$CLIP_CA" -s "$3" -v $DAYS -d $SWAN_DB_URI -t "C,C,C" -x
 }
 
-# args:
-# $1 - key
-# $2 - key password
-# $3 - subject
-# $4 - output file
-ca_sign() {
-	openssl req -new -key $1 -out request.csr -subj "$3" -passin pass:$2
-	openssl x509 -req -in request.csr -CA $CA_PEM -CAkey $CA_KEY -CAcreateserial -out $4 -days $DAYS -passin pass:$2
-}
+
 
 # args
 # $1 server key pass
@@ -79,17 +62,22 @@ update_ipsec_conf() {
 	sed -i "s/{RIGHTIP}/$2/" $IPSEC_CONF
 }
 
+#Init/Re-init NSS database containing credentials
+init_swan_db() {
+	modutil -dbdir /etc/ipsec.d -fips true
+        ipsec initnss
+
+}
+
 start() {
+	init_swan_db
   mkdir -p $WORKDIR
   cd $WORKDIR
-
-  cp /usr/share/strongswan/templates/config/ipsec.conf.tmpl $WORKDIR/
-  cp /usr/share/strongswan/templates/config/ipsec.secrets.tmpl $WORKDIR/ 
-  gen_key $CA_KEY $CA_PASSWD
+  cp /usr/share/templates/config/ipsec.conf.tmpl $WORKDIR/
+  cp /usr/share/templates/config/ipsec.secrets.tmpl $WORKDIR/
   self_sign $CA_PEM $CA_KEY "$CA_SUBJ"
 
-  gen_key $SERVER_KEY $SERVER_PASSWD
-  ca_sign $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $SERVER_PEM
+  cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $SERVER_PEM
 
   #we run after networking is up
   SERVER_IP=`ifconfig eth0 | grep "inet addr" | cut -d: -f2 | cut -d" " -f1`

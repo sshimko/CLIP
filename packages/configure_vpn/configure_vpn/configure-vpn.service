@@ -1,0 +1,12 @@
+[Unit]
+Description=Configuration Service for Initializing the CLIP VPN variant
+Requires=ipsec.service
+Before=ipsec.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /etc/init.d/configure-vpn start
+ExecStop=/bin/sh /etc/init.d/configure-vpn stop
+
+[Install]
+RequiredBy=ipsec.service

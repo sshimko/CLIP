@@ -3,6 +3,14 @@
 WORD_PROG=/usr/bin/gen_word.py
 WORDS=`$WORD_PROG 50`
 NEXT_WORD="\${WORD_ARRAY[WORD_INDEX]}; WORD_INDEX=\$[WORD_INDEX + 1]"
+#Nickname used to reference CA
+IPSECDIR=/etc/ipsec.d
+SWAN_DB_URI=sql:$IPSECDIR
+DAYS=1024
+KEYSIZE=4096
+CLIP_CA=CLIP-CA
+
+
 
 declare -a WORD_ARRAY
 WORD_INDEX=0
@@ -42,3 +50,11 @@ function gen_random_word() {
 	eval $1=$NEXT_WORD
 }
 
+# args:
+# $1 - key
+# $2 - key password
+# $3 - subject
+# $4 - output file
+cert_gen() {
+	cert_util -S -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" -d $SWAN_DB_URI
+}

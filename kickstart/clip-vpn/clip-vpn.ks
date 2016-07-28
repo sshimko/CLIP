@@ -305,7 +305,7 @@ EOF
 chkconfig --level 34 configure-vpn on
 
 # Turn strongswan on in AWS as it will be configured by the scripts above.
-chkconfig libreswan on
+systemctl enable libreswan
 
 PASSWORD="neutronbass"
 HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'
