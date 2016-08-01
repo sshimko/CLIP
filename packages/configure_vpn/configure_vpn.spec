@@ -38,6 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 /etc/systemd/system/configure-vpn.service
 /usr/bin/add_vpn_user.sh
 /usr/bin/gen_word.sh
+/usr/bin/gen_word.py
 /usr/bin/vpn_login.py
 /usr/bin/vpn_funcs.sh
 

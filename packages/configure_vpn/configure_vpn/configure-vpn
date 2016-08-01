@@ -31,8 +31,10 @@ CA_PASSWD_FILE=$PRIVATEDIR/ca_pass.txt
 CACERTDIR=$IPSECDIR/cacerts
 
 install_files() {
-	cp $CA_P12 $CACERTDIR
-	echo $CA_PASSWD > $CA_PASSWD_FILE
+        cp $IPSEC_CONF $IPSECDIR/server.conf
+        cp $IPSEC_SECRETS $IPSECDIR/server.secrets
+	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -a > $CACERTDIR/$CA_P12
+	#echo $CA_PASSWD > $CA_PASSWD_FILE
 }
 
 # args $1 - filename, $2 password
@@ -47,7 +49,6 @@ self_sign() {
 }
 
 
-
 # args
 # $1 server key pass
 update_ipsec_secrets() {
@@ -60,6 +61,7 @@ update_ipsec_secrets() {
 update_ipsec_conf() {
         sed "s/{LEFTIP}/$1/" $IPSEC_CONF_TMPL > $IPSEC_CONF
 	sed -i "s/{RIGHTIP}/$2/" $IPSEC_CONF
+	sed -i "s/{SERVER_CERT}/$3/" $IPSEC_CONF
 }
 
 #Init/Re-init NSS database containing credentials
@@ -73,16 +75,15 @@ start() {
 	init_swan_db
   mkdir -p $WORKDIR
   cd $WORKDIR
-  cp /usr/share/templates/config/ipsec.conf.tmpl $WORKDIR/
-  cp /usr/share/templates/config/ipsec.secrets.tmpl $WORKDIR/
+  cp /usr/share/vpn/templates/config/ipsec.conf.tmpl $WORKDIR/
+  cp /usr/share/vpn/templates/config/ipsec.secrets.tmpl $WORKDIR/
   self_sign $CA_PEM $CA_KEY "$CA_SUBJ"
-
   cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $SERVER_PEM
 
   #we run after networking is up
-  SERVER_IP=`ifconfig eth0 | grep "inet addr" | cut -d: -f2 | cut -d" " -f1`
+  SERVER_IP=`ifconfig eno16777736 | grep "inet addr" | cut -d: -f2 | cut -d" " -f1`
 
-  update_ipsec_conf $SERVER_IP $RIGHT_IP
+  update_ipsec_conf $SERVER_IP $RIGHT_IP "$SERVER_SUBJ"
   update_ipsec_secrets $SERVER_PASSWD
 
   install_files

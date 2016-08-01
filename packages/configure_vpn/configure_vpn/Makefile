@@ -7,7 +7,7 @@ all: add_vpn_user
 
 UNIT_FILES=configure-vpn.service
 INIT_SCRIPTS=configure-vpn
-HELPER_PROGS=add_vpn_user.sh gen_word.sh vpn_login.py vpn_funcs.sh
+HELPER_PROGS=add_vpn_user.sh gen_word.sh gen_word.py vpn_login.py vpn_funcs.sh
 
 #TODO more hardened flags?
 CFLAGS := -Werror -Wextra -Wall

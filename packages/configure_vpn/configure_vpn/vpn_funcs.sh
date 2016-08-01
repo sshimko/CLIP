@@ -33,14 +33,14 @@ function gen_passwd() {
 
 #$1 is the variable to update
 function gen_cert_subj() {
-	SUBJ="/C=US/ST=MD/L=Columbia/O="
+	SUBJ="C=US ST=MD L=Columbia O="
 	eval ORG=$NEXT_WORD
 	SUBJ="$SUBJ$ORG"
 	eval USER=$NEXT_WORD
 	eval DOMAIN=$NEXT_WORD
 	DOMAIN=$DOMAIN.com
 	EMAIL=$USER@$DOMAIN
-	SUBJ=$CLIENT_SUBJ"/CN=$DOMAIN/emailAddress=$EMAIL"
+	SUBJ="${SUBJ} CN=$DOMAIN emailAddress=$EMAIL"
 	eval $1=$SUBJ
 }
 
@@ -56,5 +56,5 @@ function gen_random_word() {
 # $3 - subject
 # $4 - output file
 cert_gen() {
-	cert_util -S -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" -d $SWAN_DB_URI
+	certutil -S -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" -d $SWAN_DB_URI
 }

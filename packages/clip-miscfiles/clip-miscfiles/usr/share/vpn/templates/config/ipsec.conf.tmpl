@@ -1,0 +1,35 @@
+# ipsec.conf - strongSwan IPsec configuration file
+
+# basic configuration
+
+config setup
+        # strictcrlpolicy=yes
+        # uniqueids = no
+        plutodebug=none
+
+conn %default
+        ikelifetime=60m
+        keylife=20m
+        rekeymargin=3m
+        keyingtries=1
+        left=%defaultroute
+	leftid={LEFT_CERT}
+        leftcert=%cert
+	leftsendcert=always
+        leftsubnet=0.0.0.0/0
+        rightsendcert=always
+	rightsubnet={RIGHTIP}
+	rightid=%fromcert
+	rightcert=%cert
+        auto=add
+
+conn rw-ikev2
+        ike=aes256-sha256-ecp384!
+	ikev2=insist
+
+conn rw-ikev1
+        xauthby=alwaysok
+        ike=aes256-sha1-modp1024!
+	ikev2=never
+	leftxauthserver=yes
+	rightxauthclient=yes

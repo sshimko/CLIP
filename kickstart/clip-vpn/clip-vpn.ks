@@ -61,6 +61,7 @@ selinux-policy
 # by default use MCS policy (selinux-policy-clip)
 -selinux-policy-mls
 selinux-policy-mcs
+selinux-policy-mcs-ec2ssh
 clip-miscfiles
 libreswan
 configure_vpn
@@ -310,11 +311,11 @@ EOF
 #####IPtables End Configuration#####
 
 # turn on the configure-strongswan service
-chkconfig --level 34 configure-vpn on
+systemctl enable ipsec.service
+systemctl enable pluto.service
+systemctl enable configure-vpn.service
 
 # Turn strongswan on in AWS as it will be configured by the scripts above.
-systemctl enable libreswan
-
 PASSWORD="neutronbass"
 HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'
 

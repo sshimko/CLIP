@@ -49,10 +49,7 @@ then
 	CONN="conn $CONN_NAME\n\
         ike=aes256-sha1-modp1024!\n\
         esp=aes256-sha1!\n\
-        keyexchange=ikev1\n\
-        rightcert=$CLIENT_SUBJ\n\
-        rightauth2=xauth\n"
-
+	ikev2=never\n"
 	gen_random_word XAUTH_USER
 	gen_passwd XAUTH_PASSWD
 
@@ -61,8 +58,7 @@ else
 	CONN="conn $CONN_NAME\n\
         ike=aes256-sha256-ecp384!\n\
         esp=aes256-aes128-sha384-sha256-ecp384-ecp256!\n\
-        keyexchange=ikev2\n\
-        rightcert=$CLIENT_SUBJ\n"
+	ikev2=insist\n"
 fi
 
 echo -e "$CONN" >> /etc/ipsec.conf

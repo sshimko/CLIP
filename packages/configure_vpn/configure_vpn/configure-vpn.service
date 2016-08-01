@@ -1,7 +1,7 @@
 [Unit]
 Description=Configuration Service for Initializing the CLIP VPN variant
 Requires=ipsec.service
-Before=ipsec.service
+After=ipsec.service
 
 [Service]
 Type=oneshot
