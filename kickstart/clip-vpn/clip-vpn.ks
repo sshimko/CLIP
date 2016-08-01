@@ -64,7 +64,15 @@ selinux-policy-mcs
 clip-miscfiles
 libreswan
 configure_vpn
-
+abrt-cli
+abrt-addon-ccpp
+abrt-addon-python
+abrt-addon-kerneloops
+libreport-plugin-rhtsupport
+libreport-cli
+libreport-web
+libreport
+hunspell
 %end
 
 %post --interpreter=/bin/bash
