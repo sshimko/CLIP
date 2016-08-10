@@ -1,12 +1,14 @@
 [Unit]
 Description=Configuration Service for Initializing the CLIP VPN variant
-Requires=ipsec.service
-After=ipsec.service
+Requires=ipsec.service network-online.target libreswan.service
+After=network-online.target
+Before=ipsec.service
+Before=libreswan.service
+
 
 [Service]
+#Oneshot will return to systemd when the script completes
 Type=oneshot
 ExecStart=/bin/sh /etc/init.d/configure-vpn start
 ExecStop=/bin/sh /etc/init.d/configure-vpn stop
-
-[Install]
-RequiredBy=ipsec.service
+TimeoutStartSec=30

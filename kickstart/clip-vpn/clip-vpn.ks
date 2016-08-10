@@ -365,8 +365,8 @@ if [ x"$CONFIG_BUILD_AWS" == "xy" ]; then
 	#well logs are still useful for debugging purposes :)
 	if [ x"$CONFIG_BUILD_VPN_ENABLE_TOOR" != "xy" ]
 	then
-                chkconfig rsyslog off
-                chkconfig auditd off
+                systemctl disable rsyslog.service
+                systemctl disable auditd.service
                 # TODO: this should really be done via policy
                 # the #*/ makes vim highlighting normal again (or as normal as it is for a ks)
                 rm -rf /var/log/* #*/

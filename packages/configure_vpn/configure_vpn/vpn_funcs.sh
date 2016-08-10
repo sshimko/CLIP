@@ -56,5 +56,8 @@ function gen_random_word() {
 # $3 - subject
 # $4 - output file
 cert_gen() {
-	certutil -S -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" -d $SWAN_DB_URI
+	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
+	certutil -R -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" \
+		 -d $SWAN_DB_URI -g $KEYSIZE -Z SHA256 -z $WORKDIR/ipsec.noise \
+		 > $4
 }

@@ -33,8 +33,8 @@ CACERTDIR=$IPSECDIR/cacerts
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
-	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -a > $CACERTDIR/$CA_P12
-	#echo $CA_PASSWD > $CA_PASSWD_FILE
+	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -a > $CA_P12
+	mv $CA_P12 $CACERTDIR
 }
 
 # args $1 - filename, $2 password
@@ -45,7 +45,10 @@ gen_key() {
 # Create a self signed CA cert
 # args $1 - filename, $2 keyfile, $3 subject
 self_sign() {
-	certutil -S -k rsa -n "$CLIP_CA" -s "$3" -v $DAYS -d $SWAN_DB_URI -t "C,C,C" -x
+	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
+	certutil -S -n "$CLIP_CA" -d $IPSECDIR -g $KEYSIZE -k rsa \
+		-z $WORKDIR/ipsec.noise -s $3 -v $DAYS -t "C,C,C" \
+		-x -Z SHA256
 }
 
 
@@ -72,7 +75,7 @@ init_swan_db() {
 }
 
 start() {
-	init_swan_db
+  init_swan_db
   mkdir -p $WORKDIR
   cd $WORKDIR
   cp /usr/share/vpn/templates/config/ipsec.conf.tmpl $WORKDIR/
@@ -81,9 +84,10 @@ start() {
   cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $SERVER_PEM
 
   #we run after networking is up
-  SERVER_IP=`ifconfig eno16777736 | grep "inet addr" | cut -d: -f2 | cut -d" " -f1`
+  SERVER_IP=`ifconfig eno16777736 | grep "inet [[:digit:]]" | cut -d: -f2 | cut -d" " -f1`
 
-  update_ipsec_conf $SERVER_IP $RIGHT_IP "$SERVER_SUBJ"
+  #TODO: Need to check that the params are reasonable
+  update_ipsec_conf $RIGHT_IP $SERVER_SUBJ
   update_ipsec_secrets $SERVER_PASSWD
 
   install_files
