@@ -9,7 +9,7 @@ SWAN_DB_URI=sql:$IPSECDIR
 DAYS=1024
 KEYSIZE=4096
 CLIP_CA=CLIP-CA
-
+NSS_DB_PASSWD=$IPSECDIR/nsspassword
 
 
 declare -a WORD_ARRAY
@@ -59,5 +59,5 @@ cert_gen() {
 	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
 	certutil -R -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" \
 		 -d $SWAN_DB_URI -g $KEYSIZE -Z SHA256 -z $WORKDIR/ipsec.noise \
-		 > $4
+		 -f ${NSS_DB_PASSWD} > $4
 }

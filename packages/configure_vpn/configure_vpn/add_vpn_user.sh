@@ -31,7 +31,7 @@ gen_key() {
 if [ $1"x" != "1x" -a $1"x" != "2x" ]
 then
 	echo "invalid IKE parameter"
-	exit -1	
+	exit -1
 fi
 
 

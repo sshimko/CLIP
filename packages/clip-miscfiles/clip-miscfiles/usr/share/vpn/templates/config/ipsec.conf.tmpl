@@ -34,3 +34,54 @@ conn rw-ikev1
 	ikev2=never
 	leftxauthserver=yes
 	rightxauthclient=yes
+
+conn rw-clip-ikev1
+	auto=add
+	authby=rsasig
+	pfs=no #?
+	rekey=no #?
+	xauthby=file
+	dpddelay=30
+	dpdtimeout=40
+	dpdaction=clear
+	ike_frag=yes
+	left=%defaultroute #works on a machine with one NIC may break in other cases
+	leftid=%fromcert
+	leftsendcert=always
+	leftsubnet=0.0.0.0/0
+	leftxauthserver=yes
+	leftmodecfgserver=yes
+	rightaddresspool=%{VIRT_ADDR_POOL}
+	right=%any
+	rightsendcert=always
+	rightrsasigkey=%cert
+	rightxauthclient=yes
+	rightmodecfgclient=yes
+	modecfgpull=yes
+	modecfgdns1=8.8.8.8
+	modecfgdns2=8.8.4.4
+	modecfgbanner="Unauthorized Access is Prohibited"
+
+conn rw-clip-ikev2
+	auto=add
+	authby=rsasig
+	pfs=no #?
+	rekey=no #?
+	ikev2=insist
+	xauthby=file
+	dpddelay=30
+	dpdtimeout=40
+	dpdaction=clear
+	ike_frag=yes
+	left=%defaultroute #works on a machine with one NIC may break in other cases
+	leftid=%fromcert
+	leftsendcert=always
+	leftsubnet=0.0.0.0/0
+	leftxauthserver=yes
+	leftmodecfgserver=yes
+	rightaddresspool=%{VIRT_ADDR_POOL}
+	right=%any
+	rightsendcert=always
+	rightrsasigkey=%cert
+	rightxauthclient=yes
+	rightmodecfgclient=yes

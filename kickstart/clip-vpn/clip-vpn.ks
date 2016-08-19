@@ -311,8 +311,8 @@ EOF
 #####IPtables End Configuration#####
 
 # turn on the configure-strongswan service
+systemctl enable libreswan.service
 systemctl enable ipsec.service
-systemctl enable pluto.service
 systemctl enable configure-vpn.service
 
 # Turn strongswan on in AWS as it will be configured by the scripts above.

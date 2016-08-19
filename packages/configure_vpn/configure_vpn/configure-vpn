@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # chkconfig: 2345 47 99
 # processname: configure-strongswan
 # description: setup strongswan configuration
@@ -21,6 +22,7 @@ gen_cert_subj CA_SUBJ
 gen_passwd CA_PASSWD
 gen_cert_subj SERVER_SUBJ
 gen_passwd SERVER_PASSWD
+gen_passwd NSS_PASSWORD
 
 #TODO allow the user to specify the subnet to use - definitely need this
 RIGHT_IP="192.168.31.0\/24"
@@ -33,7 +35,7 @@ CACERTDIR=$IPSECDIR/cacerts
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
-	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -a > $CA_P12
+	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -f NSS_DB_PASSWORD -a > $CA_P12
 	mv $CA_P12 $CACERTDIR
 }
 
@@ -48,7 +50,7 @@ self_sign() {
 	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
 	certutil -S -n "$CLIP_CA" -d $IPSECDIR -g $KEYSIZE -k rsa \
 		-z $WORKDIR/ipsec.noise -s $3 -v $DAYS -t "C,C,C" \
-		-x -Z SHA256
+		-f NSS_DB_PASSWD -x -Z SHA256
 }
 
 
@@ -62,16 +64,21 @@ update_ipsec_secrets() {
 # $1 server IP
 # $2 tun IP address assigned to client
 update_ipsec_conf() {
-        sed "s/{LEFTIP}/$1/" $IPSEC_CONF_TMPL > $IPSEC_CONF
-	sed -i "s/{RIGHTIP}/$2/" $IPSEC_CONF
-	sed -i "s/{SERVER_CERT}/$3/" $IPSEC_CONF
+	cp ${IPSEC_CONF_TMPL} ${IPSEC_CONF}
+	sed -i "s/{RIGHTIP}/${RIGHT_IP}/" $IPSEC_CONF
+	sed -i "s/{SERVER_CERT}/${SERVER_SUBJ}/" $IPSEC_CONF
 }
 
 #Init/Re-init NSS database containing credentials
 init_swan_db() {
-	modutil -dbdir /etc/ipsec.d -fips true
+	pushd ${IPSECDIR}
+	rm *.db
+	popd
         ipsec initnss
-
+	modutil -dbdir ${IPSECDIR} -fips true -force
+	echo "" > dbpass.orig
+	echo "NSS FIPS  140-2 Certificate DB:${NSS_PASSWORD}" > ${NSS_DB_PASSWD}
+	certutil -W -d ${IPSECDIR} -f dbpass.orig -@ ${NSS_DB_PASSWD}
 }
 
 start() {
@@ -87,7 +94,7 @@ start() {
   SERVER_IP=`ifconfig eno16777736 | grep "inet [[:digit:]]" | cut -d: -f2 | cut -d" " -f1`
 
   #TODO: Need to check that the params are reasonable
-  update_ipsec_conf $RIGHT_IP $SERVER_SUBJ
+  update_ipsec_conf
   update_ipsec_secrets $SERVER_PASSWD
 
   install_files
@@ -98,7 +105,7 @@ start() {
 stop() {
   echo "Nothing to do here"
 }
- 
+
 restart() {
   stop
   start
@@ -119,6 +126,5 @@ case "$1" in
     echo $"Usage: $0 {start|stop|restart}"
     exit 1
 esac
- 
-exit $?
 
+exit $?
