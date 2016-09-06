@@ -19,7 +19,6 @@ conn %default
 	leftsendcert=always
         leftsubnet=0.0.0.0/0
         rightsendcert=always
-	rightsubnet={RIGHTIP}
 	rightid=%fromcert
 	rightcert=%cert
         auto=add
@@ -38,20 +37,20 @@ conn rw-ikev1
 conn rw-clip-ikev1
 	auto=add
 	authby=rsasig
-	pfs=no #?
-	rekey=no #?
+	pfs=no
+	rekey=no
 	xauthby=file
 	dpddelay=30
 	dpdtimeout=40
 	dpdaction=clear
 	ike_frag=yes
-	left=%defaultroute #works on a machine with one NIC may break in other cases
+	left=%defaultroute
 	leftid=%fromcert
 	leftsendcert=always
 	leftsubnet=0.0.0.0/0
 	leftxauthserver=yes
 	leftmodecfgserver=yes
-	rightaddresspool=%{VIRT_ADDR_POOL}
+	rightaddresspool={VIRT_ADDR_POOL}
 	right=%any
 	rightsendcert=always
 	rightrsasigkey=%cert
@@ -65,21 +64,22 @@ conn rw-clip-ikev1
 conn rw-clip-ikev2
 	auto=add
 	authby=rsasig
-	pfs=no #?
-	rekey=no #?
+	pfs=no
+	rekey=no
 	ikev2=insist
 	xauthby=file
 	dpddelay=30
 	dpdtimeout=40
 	dpdaction=clear
 	ike_frag=yes
-	left=%defaultroute #works on a machine with one NIC may break in other cases
+	#This may break on machines with multiple NICs
+	left=%defaultroute
 	leftid=%fromcert
 	leftsendcert=always
 	leftsubnet=0.0.0.0/0
 	leftxauthserver=yes
 	leftmodecfgserver=yes
-	rightaddresspool=%{VIRT_ADDR_POOL}
+	rightaddresspool={VIRT_ADDR_POOL}
 	right=%any
 	rightsendcert=always
 	rightrsasigkey=%cert

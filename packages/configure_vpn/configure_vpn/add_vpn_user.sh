@@ -23,10 +23,6 @@ CA_PASSWD=`cat $CA_PASSWD_FILE`
 DAYS=1024
 REQUEST=$WORKDIR/request.csr
 
-gen_key() {
-        openssl genrsa -passout pass:$2 -out $1 4096
-}
-
 # arg1 is 1 for IKEV1 2 for IKEv2
 if [ $1"x" != "1x" -a $1"x" != "2x" ]
 then

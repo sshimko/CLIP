@@ -23,9 +23,10 @@ gen_passwd CA_PASSWD
 gen_cert_subj SERVER_SUBJ
 gen_passwd SERVER_PASSWD
 gen_passwd NSS_PASSWORD
+SERVER_SUBJ=${SERVER_SUBJ}
 
 #TODO allow the user to specify the subnet to use - definitely need this
-RIGHT_IP="192.168.31.0\/24"
+RIGHT_IP="192.168.31.0-192.168.31.255"
 IPSECDIR=/etc/ipsec.d
 CERTDIR=$IPSECDIR/certs
 PRIVATEDIR=$IPSECDIR/private
@@ -35,7 +36,7 @@ CACERTDIR=$IPSECDIR/cacerts
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
-	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -f NSS_DB_PASSWORD -a > $CA_P12
+	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -f i$NSS_DB_PASSWORD -a > $CA_P12
 	mv $CA_P12 $CACERTDIR
 }
 
@@ -50,7 +51,7 @@ self_sign() {
 	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
 	certutil -S -n "$CLIP_CA" -d $IPSECDIR -g $KEYSIZE -k rsa \
 		-z $WORKDIR/ipsec.noise -s $3 -v $DAYS -t "C,C,C" \
-		-f NSS_DB_PASSWD -x -Z SHA256
+		-f $NSS_DB_PASSWD -x -Z SHA256
 }
 
 
@@ -65,7 +66,7 @@ update_ipsec_secrets() {
 # $2 tun IP address assigned to client
 update_ipsec_conf() {
 	cp ${IPSEC_CONF_TMPL} ${IPSEC_CONF}
-	sed -i "s/{RIGHTIP}/${RIGHT_IP}/" $IPSEC_CONF
+	sed -i "s/{VIRT_ADDR_POOL}/${RIGHT_IP}/" $IPSEC_CONF
 	sed -i "s/{SERVER_CERT}/${SERVER_SUBJ}/" $IPSEC_CONF
 }
 
