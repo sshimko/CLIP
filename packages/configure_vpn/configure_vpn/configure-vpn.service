@@ -12,3 +12,6 @@ Type=oneshot
 ExecStart=/bin/sh /etc/init.d/configure-vpn start
 ExecStop=/bin/sh /etc/init.d/configure-vpn stop
 TimeoutStartSec=30
+
+[Install]
+WantedBy=network-online.target ipsec.service pluto.service

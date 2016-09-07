@@ -32,6 +32,7 @@ CERTDIR=$IPSECDIR/certs
 PRIVATEDIR=$IPSECDIR/private
 CA_PASSWD_FILE=$PRIVATEDIR/ca_pass.txt
 CACERTDIR=$IPSECDIR/cacerts
+CLIP_SERVER=CLIP-SERVER
 
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
@@ -78,7 +79,7 @@ init_swan_db() {
         ipsec initnss
 	modutil -dbdir ${IPSECDIR} -fips true -force
 	echo "" > dbpass.orig
-	echo "NSS FIPS  140-2 Certificate DB:${NSS_PASSWORD}" > ${NSS_DB_PASSWD}
+	echo "NSS FIPS 140-2 Certificate DB:${NSS_PASSWORD}" > ${NSS_DB_PASSWD}
 	certutil -W -d ${IPSECDIR} -f dbpass.orig -@ ${NSS_DB_PASSWD}
 }
 
@@ -89,7 +90,7 @@ start() {
   cp /usr/share/vpn/templates/config/ipsec.conf.tmpl $WORKDIR/
   cp /usr/share/vpn/templates/config/ipsec.secrets.tmpl $WORKDIR/
   self_sign $CA_PEM $CA_KEY "$CA_SUBJ"
-  cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $SERVER_PEM
+  cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $CLIP_SERVER
 
   #we run after networking is up
   SERVER_IP=`ifconfig eno16777736 | grep "inet [[:digit:]]" | cut -d: -f2 | cut -d" " -f1`

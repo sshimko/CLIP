@@ -9,6 +9,7 @@ SWAN_DB_URI=sql:$IPSECDIR
 DAYS=1024
 KEYSIZE=4096
 CLIP_CA=CLIP-CA
+
 NSS_DB_PASSWD=$IPSECDIR/nsspassword
 
 
@@ -54,10 +55,21 @@ function gen_random_word() {
 # $1 - key
 # $2 - key password
 # $3 - subject
-# $4 - output file
+# $4 - cert name
 cert_gen() {
-	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
-	certutil -R -k rsa -c "$CLIP_CA" -n "$3" -s "$3" -v $DAYS -t "u,u,u" \
+	random_file=TMPFILE()
+	dd if=/dev/random of=$random_file count=8192 bs=1
+	certutil -R -k rsa -c "$CLIP_CA" -n "$4" -s "$3" -v $DAYS -t "u,u,u" \
 		 -d $SWAN_DB_URI -g $KEYSIZE -Z SHA256 -z $WORKDIR/ipsec.noise \
-		 -f ${NSS_DB_PASSWD} > $4
+		 -f ${NSS_DB_PASSWD}
+	rm -f $random_file
+}
+
+#args
+# $1 - name of the cert to export
+# $2 - base name of the output file
+cert_export() {
+	certutil -L -n "$CLIP_CA" > ca.der
+	certutil -L -n "$1" > $2.der
+	#TODO: bundle as pk12 file
 }
