@@ -45,6 +45,8 @@ install
 timezone --utc Etc/GMT
 auth --useshadow --passalgo=sha512
 
+#Boot with fips parameter for nss and libreswan to run in fips-y modes
+bootloader --append="fips=1"
 selinux --enforcing
 firewall --enabled
 reboot --eject
