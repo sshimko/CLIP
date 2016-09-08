@@ -37,8 +37,9 @@ CLIP_SERVER=CLIP-SERVER
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
-	certutil -L -n "$CLIP_CA" -d $SWAN_DB_URI -f i$NSS_DB_PASSWORD -a > $CA_P12
-	mv $CA_P12 $CACERTDIR
+	#TODO: Remove
+	#certutil -L -n "${CLIP_CA}" -d ${IPSECDIR} -f ${NSS_DB_PASSWORD} -a > $CA_P12
+	#mv $CA_P12 $CACERTDIR
 }
 
 # args $1 - filename, $2 password
@@ -50,9 +51,9 @@ gen_key() {
 # args $1 - filename, $2 keyfile, $3 subject
 self_sign() {
 	dd if=/dev/random of=$WORKDIR/ipsec.noise count=8192 bs=1
-	certutil -S -n "$CLIP_CA" -d $IPSECDIR -g $KEYSIZE -k rsa \
-		-z $WORKDIR/ipsec.noise -s $3 -v $DAYS -t "C,C,C" \
-		-f $NSS_DB_PASSWD -x -Z SHA256
+	certutil -S -n "${CLIP_CA}" -d ${IPSECDIR} -g ${KEYSIZE} -k rsa \
+		-z ${WORKDIR}/ipsec.noise -s ${3} -v ${DAYS} -t 'C,C,C' \
+		-f ${NSS_DB_PASSWD} -x -Z SHA256
 }
 
 
@@ -68,10 +69,10 @@ update_ipsec_secrets() {
 update_ipsec_conf() {
 	cp ${IPSEC_CONF_TMPL} ${IPSEC_CONF}
 	sed -i "s/{VIRT_ADDR_POOL}/${RIGHT_IP}/" $IPSEC_CONF
-	sed -i "s/{SERVER_CERT}/${SERVER_SUBJ}/" $IPSEC_CONF
+	sed -i "s/{SERVER_CERT}/${CLIP_SERVER}/" $IPSEC_CONF
 }
 
-#Init/Re-init NSS database containing credentials
+#Init/Re-init NSS database containing certs and keys
 init_swan_db() {
 	pushd ${IPSECDIR}
 	rm *.db

@@ -9,7 +9,6 @@ SWAN_DB_URI=sql:$IPSECDIR
 DAYS=1024
 KEYSIZE=4096
 CLIP_CA=CLIP-CA
-
 NSS_DB_PASSWD=$IPSECDIR/nsspassword
 
 
@@ -34,15 +33,19 @@ function gen_passwd() {
 
 #$1 is the variable to update
 function gen_cert_subj() {
-	SUBJ="C=US ST=MD L=Columbia O="
+
+	#Seems like this could be an issue if we collide with actual domains
 	eval ORG=$NEXT_WORD
-	SUBJ="$SUBJ$ORG"
 	eval USER=$NEXT_WORD
 	eval DOMAIN=$NEXT_WORD
+	#Filter out special characters may break cert creation
+	ORG=$(echo ${ORG} | sed -e 's/[^A-Za-z]//g')
+	DOMAIN=$(echo ${DOMAIN} | sed -e 's/[^A-Za-z]//g')
+	USER=$(echo ${USER} | sed -e 's/[^A-Za-z]//g')
 	DOMAIN=$DOMAIN.com
 	EMAIL=$USER@$DOMAIN
-	SUBJ="${SUBJ} CN=$DOMAIN emailAddress=$EMAIL"
-	eval $1=$SUBJ
+	SUBJ="C=US,ST=Maryland,L=Columbia,O=${ORG},CN=${DOMAIN}"
+	eval $1='$SUBJ'
 }
 
 #$1 is the variable to update
@@ -57,19 +60,22 @@ function gen_random_word() {
 # $3 - subject
 # $4 - cert name
 cert_gen() {
-	random_file=TMPFILE()
-	dd if=/dev/random of=$random_file count=8192 bs=1
-	certutil -R -k rsa -c "$CLIP_CA" -n "$4" -s "$3" -v $DAYS -t "u,u,u" \
-		 -d $SWAN_DB_URI -g $KEYSIZE -Z SHA256 -z $WORKDIR/ipsec.noise \
+	certdir=$(mktemp -d)
+	random_file=${certdir}/noise
+	dd if=/dev/random of=${random_file} count=8192 bs=1
+	certutil -S -k rsa -c "${CLIP_CA}" -n "${4}" -s ${3} -v ${DAYS} -t 'u,u,u' \
+		 -d ${IPSECDIR} -g ${KEYSIZE} -Z SHA256 -z ${random_file} \
 		 -f ${NSS_DB_PASSWD}
-	rm -f $random_file
+	rm -rf ${certdir}
 }
 
 #args
 # $1 - name of the cert to export
 # $2 - base name of the output file
 cert_export() {
-	certutil -L -n "$CLIP_CA" > ca.der
-	certutil -L -n "$1" > $2.der
-	#TODO: bundle as pk12 file
+	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" > ca.crt
+	#Not ideal... but need someway of ensuring the user can actually import files
+	P12_PASS=$gen_passwd
+	echo ${P12_PASS} > ${2}.pass
+	p12util -o ${2}.p12 -n ${2} -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -W ${2}.pass
 }

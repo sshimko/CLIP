@@ -12,76 +12,39 @@ conn %default
         ikelifetime=60m
         keylife=20m
         rekeymargin=3m
-        keyingtries=1
-        left=%defaultroute
-	leftid=%defaultroute
-        leftcert=%cert
-	leftsendcert=always
-        leftsubnet=0.0.0.0/0
-        rightsendcert=always
-	rightid=%fromcert
-	rightcert=%cert
-        auto=add
-
-conn rw-ikev2
-        ike=aes256-sha256-ecp384!
-	ikev2=insist
-
-conn rw-ikev1
-        xauthby=alwaysok
-        ike=aes256-sha1-modp1024!
-	ikev2=never
-	leftxauthserver=yes
-	rightxauthclient=yes
-
-conn rw-clip-ikev1
-	auto=add
-	authby=rsasig
-	pfs=no
-	rekey=no
-	xauthby=file
-	dpddelay=30
+        dpddelay=30
 	dpdtimeout=40
 	dpdaction=clear
 	ike_frag=yes
-	left=%defaultroute
-	leftid=%fromcert
+	keyingtries=1
+        auto=add
+	pfs=yes
+	rekey=yes
+	authby=rsasig
+
+conn rw-ikev2
+        ike=aes256-sha256-ecp384
+	ikev2=insist
+	also=clip-server
+
+conn rw-ikev1
+        ike=aes256-sha1-modp1024
+	ikev2=never
+	also=clip-server
+
+conn clip-server
+        left=%defaultroute
+        leftcert={SERVER_CERT}
 	leftsendcert=always
-	leftsubnet=0.0.0.0/0
+        leftsubnet=0.0.0.0/0
 	leftxauthserver=yes
 	leftmodecfgserver=yes
-	rightaddresspool={VIRT_ADDR_POOL}
-	right=%any
-	rightsendcert=always
-	rightrsasigkey=%cert
+        rightsendcert=always
 	rightxauthclient=yes
 	rightmodecfgclient=yes
-	modecfgpull=yes
+	rightaddresspool={VIRT_ADDR_POOL}
+	right=%any
 	modecfgdns1=8.8.8.8
 	modecfgdns2=8.8.4.4
 	modecfgbanner="Unauthorized Access is Prohibited"
-
-conn rw-clip-ikev2
-	auto=add
-	authby=rsasig
-	pfs=no
-	rekey=no
-	ikev2=insist
-	xauthby=file
-	dpddelay=30
-	dpdtimeout=40
-	dpdaction=clear
-	ike_frag=yes
-	#This may break on machines with multiple NICs
-	left=%defaultroute
-	leftid=%fromcert
-	leftsendcert=always
-	leftsubnet=0.0.0.0/0
-	leftxauthserver=yes
-	leftmodecfgserver=yes
-	rightaddresspool={VIRT_ADDR_POOL}
-	right=%any
-	rightsendcert=always
-	rightrsasigkey=%cert
-	rightxauthclient=yes
-	rightmodecfgclient=yes
+	modecfgpull=yes
