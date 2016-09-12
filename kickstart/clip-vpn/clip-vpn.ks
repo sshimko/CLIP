@@ -4,19 +4,19 @@
 # modification, are permitted provided that the following conditions
 # are met:
 # 1) Distributed source includes this license and disclaimer,
-# 2) Binary distributions must reproduce the license and disclaimer in the 
+# 2) Binary distributions must reproduce the license and disclaimer in the
 #    documentation and/or other materials provided with the distribution,
-# 3) Tresys and contributors may not be used to endorse or promote products 
+# 3) Tresys and contributors may not be used to endorse or promote products
 #    derived from this software without specific prior written permission
 #
-# THIS SOFTWARE IS PROVIDED BY TRESYS ``AS IS'' AND ANY EXPRESS OR IMPLIED 
-# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO 
-# EVENT SHALL  TRESYS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+# THIS SOFTWARE IS PROVIDED BY TRESYS ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL  TRESYS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -29,9 +29,9 @@
 bootloader --location=mbr --timeout=5 --append="audit=1" --password=neutronbass
 
 # FIXME: Change the root password.
-#        CLIP locks the root account in the post below so this password won't 
-#        work.  However, if the field is missing you will be prompted during 
-#        installation for a password so specify one to avoid install-time 
+#        CLIP locks the root account in the post below so this password won't
+#        work.  However, if the field is missing you will be prompted during
+#        installation for a password so specify one to avoid install-time
 #        questions.
 # rootpw correctbatteryhorsestaple
 rootpw neutronbass
@@ -146,16 +146,16 @@ if [ x"$CONFIG_BUILD_AWS" != "xy" -o x"$CONFIG_BUILD_VPN_ENABLE_TOOR" == "xy" ];
 	PASSWORD="neutronbass"
 	HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'
 
-	# NOTE: The root account is *locked*.  You must create an unprivileged user 
+	# NOTE: The root account is *locked*.  You must create an unprivileged user
 	#       and grant that user administrator capabilities through sudo.
-	#       An account will be created below.  This account will be allowed to 
-	#       change to the SELinux system administrator role, and become root via 
-	#       sudo.  The information used to create the account comes from the 
+	#       An account will be created below.  This account will be allowed to
+	#       change to the SELinux system administrator role, and become root via
+	#       sudo.  The information used to create the account comes from the
 	#       USERNAME and PASSWORD values defined a few lines above.
 	#
-	# Don't get lost in the 'if' statement - basically map $USERNAME to the unconfined toor_r:toor_t role if it is enabled.  
+	# Don't get lost in the 'if' statement - basically map $USERNAME to the unconfined toor_r:toor_t role if it is enabled.
 	if [ x"$CONFIG_BUILD_UNCONFINED_TOOR" == "xy" ]; then
-		semanage user -N -a -R toor_r -R staff_r -R sysadm_r "${USERNAME}_u" 
+		semanage user -N -a -R toor_r -R staff_r -R sysadm_r "${USERNAME}_u"
 	else
 		semanage user -N -a -R staff_r -R sysadm_r "${USERNAME}_u" || semanage user -a -R staff_r "${USERNAME}_u"
 	fi
@@ -171,7 +171,7 @@ if [ x"$CONFIG_BUILD_AWS" != "xy" -o x"$CONFIG_BUILD_VPN_ENABLE_TOOR" == "xy" ];
 	if [ x"$CONFIG_BUILD_AWS" != "xy" ]; then
 		chage -d 0 "$USERNAME"
 	fi
-	
+
 	# Add the user to sudoers and setup an SELinux role/type transition.
 	# This line enables a transition via sudo instead of requiring sudo and newrole.
 	if [ x"$CONFIG_BUILD_UNCONFINED_TOOR" == "xy" ]; then
@@ -214,13 +214,13 @@ if [ x"$CONFIG_BUILD_ENFORCING_MODE" != "xy" ]; then
 	echo "Setting permissive mode..."
 	echo -e "#THIS IS A DEBUG BUILD HENCE SELINUX IS IN PERMISSIVE MODE\nSELINUX=permissive\nSELINUXTYPE=$POLNAME\n" > /etc/selinux/config
 	echo "WARNING: This is a debug build in permissive mode.  DO NOT USE IN PRODUCTION!" >> /etc/motd
-	# This line is used to make policy development easier.  It disables the "setfiles" check used by 
+	# This line is used to make policy development easier.  It disables the "setfiles" check used by
 	# semodule/semanage that prevents transactions containing invalid and dupe fc entries from rolling forward.
 	echo -e "module-store = direct\n[setfiles]\npath=/bin/true\n[end]\n" > /etc/selinux/semanage.conf
 	if [ -f /etc/grub.conf ]; then
 		grubby --update-kernel=ALL --remove-args=enforcing
 		grubby --update-kernel=ALL --args=enforcing=0
-	fi	
+	fi
 fi
 
 # This remediation doesn't appear to be added to the script, it might have been added after the SSG release
@@ -287,7 +287,7 @@ COMMIT
 :PREROUTING ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--A POSTROUTING -j MASQUERADE 
+-A POSTROUTING -j MASQUERADE
 COMMIT
 *filter
 :INPUT DROP [0:0]
@@ -383,7 +383,7 @@ if [ x"$CONFIG_BUILD_AWS" == "xy" ]; then
 	if [ x"$CONFIG_BUILD_VPN_ENABLE_TOOR" == "xy" ]
 	then
 		SSH_USERS="$SSH_USERS toor"
-		chage -E -1 $USERNAME 
+		chage -E -1 $USERNAME
 	fi
 	sed -i -e "s/__USERS__/$SSH_USERS/g" /etc/rc.d/init.d/ec2-get-ssh
 
@@ -400,7 +400,7 @@ COMMIT
 :PREROUTING ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--A POSTROUTING -j MASQUERADE 
+-A POSTROUTING -j MASQUERADE
 COMMIT
 *filter
 :INPUT DROP [0:0]
@@ -442,9 +442,9 @@ echo -e "        ForceCommand internal-sftp\n" >> /etc/ssh/sshd_config
 
 semanage boolean -N -S ${POLNAME} -m --on ssh_chroot_rw_homedirs
 
-# This is rather unfortunate, but the remediation content 
+# This is rather unfortunate, but the remediation content
 # starts services, which need to be killed/shutdown if
-# we're rolling Live Media.  First, kill the known 
+# we're rolling Live Media.  First, kill the known
 # problems cleanly, then just kill them all and let
 # <deity> sort them out.
 
@@ -452,8 +452,8 @@ if [ x"$CONFIG_BUILD_LIVE_MEDIA" == "xy" ] \
 	|| [ x"$CONFIG_BUILD_AWS" == "xy" ]; then
 	rm /.autorelabel
 	# this unfortunate hack is b/c stopping the daemon only
-	# kills the first process and the child hangs around 
-	# and has open FDs and the img file can't be cleanly 
+	# kills the first process and the child hangs around
+	# and has open FDs and the img file can't be cleanly
 	# unmounted
 	kill -TERM -`cat /var/run/ntpd.pid`
 fi
