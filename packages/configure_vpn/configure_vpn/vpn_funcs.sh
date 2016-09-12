@@ -70,12 +70,52 @@ cert_gen() {
 }
 
 #args
+#1 ike type
+#2 connection name
+swan_config_gen() {
+	if [ $1"x" == "1x" ]
+	then
+		CONN="conn ${2}\n\
+		ike=aes256-sha1-modp1024!\n\
+		esp=aes256-sha1!\n\
+		ikev2=never\n\
+		rightid=${2}\n\
+		alsoflip=clip-server"
+
+	else
+		CONN="conn ${2}\n\
+		ike=aes256-sha256-ecp384!\n\
+		esp=aes256-aes128-sha384-sha256-ecp384-ecp256!\n\
+		ikev2=insist\n\
+		rightid=${2}\n\
+		alsoflip=clip-server"
+	fi
+	echo -e "$CONN" >> ${IPSECDIR}/${2}.conf
+}
+
+#args
+#1 output directory
+#2 connection name
+xauth_gen() {
+	gen_random_word XAUTH_USER
+	gen_passwd XAUTH_PASSWD
+	XAUTH_INFO="$XAUTH_USER : XAUTH $XAUTH_PASSWD"
+	if [ "$XAUTH_INFO""x" != "x" ]
+	then
+		echo -e "$XAUTH_INFO" >> ${IPSECDIR}/${2}.secrets
+	fi
+	echo $XAUTH_USER > ${1}/xauth_info.txt
+	echo $XAUTH_PASSWD >> ${1}/xauth_info.txt
+}
+
+#args
 # $1 - name of the cert to export
 # $2 - base name of the output file
 cert_export() {
-	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" > ca.crt
-	#Not ideal... but need someway of ensuring the user can actually import files
+	#Convert to PEM
+	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" -r | openssl x509 -inform DER \
+		-out ${1}/$CA_PEM -outform PEM
 	P12_PASS=$gen_passwd
-	echo ${P12_PASS} > ${2}.pass
-	p12util -o ${2}.p12 -n ${2} -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -W ${2}.pass
+	echo ${P12_PASS} > ${1}/${2}.pass
+	p12util -o ${1}/${2}.p12 -n ${2} -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -W ${1}/client_pass.txt
 }

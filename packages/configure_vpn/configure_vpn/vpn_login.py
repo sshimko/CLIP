@@ -10,6 +10,7 @@ def err(msg):
 def main():
 	try:
 		print "configure vpn"
+		print "Specify IKE version. Valid values (1 or 2)"
 		#expect the following:
 		#line 1: ike version
 

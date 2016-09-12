@@ -322,13 +322,6 @@ PASSWORD="neutronbass"
 HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'
 
 # we need to be vpnadm_u:vpnadm_r:vpnadm_t
-useradd -m vpn
-semanage user -N -a -R vpnadm_r vpnadm_u
-semanage login -N -a -s vpnadm_u vpn
-usermod -s /usr/bin/strongswan_login.py vpn
-usermod --pass="$HASHED_PASSWD" 
-chage -E -1 vpn
-
 useradd -m sftp
 semanage login -N -a -s vpnadm_u sftp
 usermod -d /sftp sftp
@@ -336,6 +329,25 @@ usermod -d /sftp sftp
 semanage fcontext -a -e /sftp /home/sftp
 usermod --pass="$HASHED_PASSWORD" sftp
 chage -E -1 sftp
+
+useradd -m vpn
+semanage user -N -a -R vpnadm_r vpnadm_u
+semanage login -N -a -s vpnadm_u vpn
+usermod -s /usr/bin/vpn_login.py vpn
+usermod -a -G sftp vpn
+usermod --pass="$HASHED_PASSWD"
+chage -E -1 vpn
+
+
+#Setup permissions that allow the vpn user to access nss data base for user certs
+chown root:vpn /etc/ipsec.d
+chmod 770 /etc/ipsec.d
+
+#Setup DAC permissions that allow the vpn user to access the sftp dirs for cert output
+mkdir /home/sftp/android_certs
+chmod 750 /home/sftp/
+chmod 770 /home/sftp/android_certs
+chown sftp vpn /home/sftp/andorid_certs
 
 # Need to do some additional customizations if we're building for AWS
 if [ x"$CONFIG_BUILD_AWS" == "xy" ]; then

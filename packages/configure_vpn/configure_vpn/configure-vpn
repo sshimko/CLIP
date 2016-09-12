@@ -11,7 +11,6 @@ WORKDIR="/tmp/libreswan"
 CA_KEY="$WORKDIR/rootCA.key"
 CA_PEM="$WORKDIR/ca.pem"
 CA_P12="$WORKDIR/ca.crt"
-SERVER_KEY="$WORKDIR/server.key"
 SERVER_PEM="$WORKDIR/server.pem"
 IPSEC_CONF="$WORKDIR/ipsec.conf"
 IPSEC_SECRETS="$WORKDIR/ipsec.secrets"
@@ -78,6 +77,13 @@ init_swan_db() {
 	rm *.db
 	popd
         ipsec initnss
+	chmod 750 /etc/ipsec.d/
+	#reset permissions for the  user cert creation
+	dbs="$(find ${IPSECDIR} -type f -iname '*.db')"
+	for db in ${dbs}; do
+		chown root:vpn ${db}
+		chmod 660 ${db}
+	done
 	modutil -dbdir ${IPSECDIR} -fips true -force
 	echo "" > dbpass.orig
 	echo "NSS FIPS 140-2 Certificate DB:${NSS_PASSWORD}" > ${NSS_DB_PASSWD}
@@ -91,7 +97,7 @@ start() {
   cp /usr/share/vpn/templates/config/ipsec.conf.tmpl $WORKDIR/
   cp /usr/share/vpn/templates/config/ipsec.secrets.tmpl $WORKDIR/
   self_sign $CA_PEM $CA_KEY "$CA_SUBJ"
-  cert_gen $SERVER_KEY $SERVER_PASSWD "$SERVER_SUBJ" $CLIP_SERVER
+  cert_gen $SERVER_PASSWD "$SERVER_SUBJ" $CLIP_SERVER
 
   #we run after networking is up
   SERVER_IP=`ifconfig eno16777736 | grep "inet [[:digit:]]" | cut -d: -f2 | cut -d" " -f1`
