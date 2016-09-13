@@ -81,6 +81,10 @@ hunspell
 %post --interpreter=/bin/bash
 # DO NOT REMOVE THE FOLLOWING LINE. NON-EXISTENT WARRANTY VOID IF REMOVED.
 #CONFIG-BUILD-PLACEHOLDER
+%include includes/standard-prep-post-env
+
+
+
 export PATH="/sbin:/usr/sbin:/usr/bin:/bin:/usr/local/bin"
 exec >/root/clip_post_install.log 2>&1
 if [ x"$CONFIG_BUILD_LIVE_MEDIA" != "xy" ] \
@@ -101,36 +105,8 @@ export POLNAME=$(awk -F= '/^SELINUXTYPE/ { print $2; }' /etc/selinux/config)
 #NOTE: while the following lines allow the SCAP content to be interprested on
 # CentOS, the results might be wrong in a few places, like FIPS compliance and
 # gpgp keys etc.
-if [ -f /etc/centos-release ]; then
-	awk '/o:redhat:enterprise_linux:6/{print "<platform idref=\"cpe:/o:centos:centos:6\"/>"}1' < /usr/share/xml/scap/ssg/content/ssg-rhel6-xccdf.xml > /usr/share/xml/scap/ssg/content/ssg-centos6-xccdf.xml
-	xccdf='centos6'
-else
-	xccdf='rhel6'
-fi
-
-mkdir -p /root/scap/{pre,post}/html
-oscap xccdf eval --profile stig-rhel6-server-upstream \
---report /root/scap/pre/html/report.html \
---results /root/scap/pre/html/results.xml \
-/usr/share/xml/scap/ssg/content/ssg-${xccdf}-xccdf.xml
-
-oscap xccdf generate fix \
---result-id xccdf_org.open-scap_testresult_stig-rhel6-server-upstream \
-/root/scap/pre/html/results.xml > /root/scap/pre/remediation-script.sh
-
-chmod +x /root/scap/pre/remediation-script.sh
-if [ x"$CONFIG_BUILD_REMEDIATE" == "xy" ]; then
-        mkdir -p /tmp/service
-        echo "#!/bin/bash" > /tmp/service/service
-        echo "echo \"ignoring service call \$1\" >> /tmp/service/service.log" >> /tmp/service/service
-        chmod a+x /tmp/service/service
-        PATH=/tmp/service:$PATH /root/scap/pre/remediation-script.sh
-        # Un-remeidate things SSG broke...
-        sed -i -e "s/targeted/${POLNAME}/" /etc/selinux/config
-        cat /etc/issue | sed 's/\[\\s\\n\][+*]/ /g;s/\\//g;s/[^-]- /\n\n-/g' | fold -sw 80 > /etc/issue.net
-        cp /etc/issue.net /etc/issue
-fi
-
+%include includes/standard-early-scap-audit
+%include includes/standard-scap-remediate
 
 if [ x"$CONFIG_BUILD_AWS" != "xy" -o x"$CONFIG_BUILD_VPN_ENABLE_TOOR" == "xy" ]; then
 	# FIXME: Change the username and password.
@@ -253,16 +229,6 @@ else
         sed -i --follow-symlink "s/\(.*pam_cracklib\.so.*\)/\1 maxrepeat=3/" /etc/pam.d/system-auth
 fi
 
-oscap xccdf eval --profile stig-rhel6-server-upstream \
---report /root/scap/post/html/report.html \
---results /root/scap/post/html/results.xml \
-/usr/share/xml/scap/ssg/content/ssg-${xccdf}-xccdf.xml
-
-oscap xccdf generate fix \
---result-id xccdf_org.open-scap_testresult_stig-rhel6-server-upstream \
-/root/scap/post/html/results.xml > /root/scap/post/remediation-script.sh
-chmod +x /root/scap/post/remediation-script.sh
-
 sed -i -e "s/targeted/${POLNAME}/" /etc/selinux/config
 
 echo "session optional pam_umask.so umask=0077" >> /etc/pam.d/sshd
@@ -348,6 +314,10 @@ mkdir /home/sftp/android_certs
 chmod 750 /home/sftp/
 chmod 770 /home/sftp/android_certs
 chown sftp vpn /home/sftp/andorid_certs
+
+
+%include includes/standard-fix-bad-scap
+%include includes/standard-late-scap-audit
 
 # Need to do some additional customizations if we're building for AWS
 if [ x"$CONFIG_BUILD_AWS" == "xy" ]; then
