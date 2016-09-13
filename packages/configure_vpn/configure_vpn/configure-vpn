@@ -87,6 +87,8 @@ init_swan_db() {
 	modutil -dbdir ${IPSECDIR} -fips true -force
 	echo "" > dbpass.orig
 	echo "NSS FIPS 140-2 Certificate DB:${NSS_PASSWORD}" > ${NSS_DB_PASSWD}
+	chown root:vpn ${NSS_DB_PASSWD}
+	chmod 640 ${NSS_DB_PASSWD}
 	certutil -W -d ${IPSECDIR} -f dbpass.orig -@ ${NSS_DB_PASSWD}
 }
 

@@ -313,7 +313,7 @@ chmod 770 /etc/ipsec.d
 mkdir /home/sftp/android_certs
 chmod 750 /home/sftp/
 chmod 770 /home/sftp/android_certs
-chown sftp vpn /home/sftp/andorid_certs
+chown sftp:vpn /home/sftp/android_certs
 
 
 %include includes/standard-fix-bad-scap

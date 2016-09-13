@@ -31,16 +31,16 @@ make DESTDIR=%{buildroot} install
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(6755,root,root,-)
-/usr/bin/add_vpn_user
 %defattr(755,root,root,-)
-/etc/init.d/configure-vpn
-/etc/systemd/system/configure-vpn.service
+/usr/bin/add_vpn_user
 /usr/bin/add_vpn_user.sh
 /usr/bin/gen_word.sh
 /usr/bin/gen_word.py
 /usr/bin/vpn_login.py
 /usr/bin/vpn_funcs.sh
+%defattr(660,root,root,-)
+/etc/init.d/configure-vpn
+/etc/systemd/system/configure-vpn.service
 
 %post
 

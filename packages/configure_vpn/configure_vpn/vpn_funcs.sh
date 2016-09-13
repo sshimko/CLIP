@@ -55,15 +55,14 @@ function gen_random_word() {
 }
 
 # args:
-# $1 - key
-# $2 - key password
-# $3 - subject
-# $4 - cert name
+# $1 - key password
+# $2 - subject
+# $3 - cert name
 cert_gen() {
 	certdir=$(mktemp -d)
 	random_file=${certdir}/noise
 	dd if=/dev/random of=${random_file} count=8192 bs=1
-	certutil -S -k rsa -c "${CLIP_CA}" -n "${4}" -s ${3} -v ${DAYS} -t 'u,u,u' \
+	certutil -S -k rsa -c "${CLIP_CA}" -n "${3}" -s ${2} -v ${DAYS} -t 'u,u,u' \
 		 -d ${IPSECDIR} -g ${KEYSIZE} -Z SHA256 -z ${random_file} \
 		 -f ${NSS_DB_PASSWD}
 	rm -rf ${certdir}
@@ -108,14 +107,15 @@ xauth_gen() {
 	echo $XAUTH_PASSWD >> ${1}/xauth_info.txt
 }
 
+
 #args
 # $1 - name of the cert to export
 # $2 - base name of the output file
 cert_export() {
 	#Convert to PEM
 	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" -r | openssl x509 -inform DER \
-		-out ${1}/$CA_PEM -outform PEM
+		-out ${1}/ca.pem -outform PEM
 	P12_PASS=$gen_passwd
 	echo ${P12_PASS} > ${1}/${2}.pass
-	p12util -o ${1}/${2}.p12 -n ${2} -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -W ${1}/client_pass.txt
+	pk12util -o ${1}/${2}.p12 -n ${2} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -W ${1}/client_pass.txt
 }
