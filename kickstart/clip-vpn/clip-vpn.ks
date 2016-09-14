@@ -416,7 +416,7 @@ sed -i -e 's/GSSAPIAuthentication .*/GSSAPIAuthentication no/g' /etc/ssh/sshd_co
 sed -i -r -e "s/Subsystem\s*sftp.*//g" /etc/ssh/sshd_config
 
 echo -e "Subsystem sftp internal-sftp\n" >> /etc/ssh/sshd_config
-echo -e "Match Group sftp\n" >> /etc/ssh/sshd_config
+echo -e "Match User sftp\n" >> /etc/ssh/sshd_config
 echo -e "        AllowTCPForwarding no\n" >> /etc/ssh/sshd_config
 echo -e "        X11Forwarding no\n" >> /etc/ssh/sshd_config
 echo -e "        ChrootDirectory /home\n" >> /etc/ssh/sshd_config
