@@ -105,7 +105,7 @@ xauth_gen() {
 	XAUTH_PASSWD=""
 	gen_random_word XAUTH_USER
 	gen_passwd XAUTH_PASSWD
-	XAUTH_INFO="$XAUTH_USER : XAUTH $XAUTH_PASSWD"
+	XAUTH_INFO=": RSA \"${1}\"\n@${XAUTH_USER} : XAUTH \"${XAUTH_PASSWD}\"\n"
 	if [ "$XAUTH_INFO""x" != "x" ]
 	then
 		echo -e "$XAUTH_INFO" >> ${IPSECDIR}/${1}.secrets
@@ -122,10 +122,10 @@ cert_export() {
 	#Convert to PEM
 	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" -r | openssl x509 -inform DER \
 		-out ${CA_PEM} -outform PEM
-	P12_PASS=$gen_passwd
+	gen_passwd P12_PASS
 	echo ${P12_PASS} > ${CLIENT_PASSWD_FILE}
 	chown vpn:sftp ${CLIENT_PASSWD_FILE}; chmod 640 ${CLIENT_PASSWD_FILE}
-	pk12util -o ${CLIENT_CERT_P12} -n ${1} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -W ${CLIENT_PASSWD_FILE}
+	pk12util -o ${CLIENT_CERT_P12} -n ${1} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -w ${CLIENT_PASSWD_FILE}
 	chown vpn:sftp ${CA_CERT}; chmod 640 ${CA_CERT}
 	chown vpn:sftp ${CLIENT_CERT_P12}; chmod 640 ${CLIENT_CERT_P12}
 }
