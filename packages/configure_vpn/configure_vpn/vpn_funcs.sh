@@ -10,6 +10,11 @@ DAYS=1024
 KEYSIZE=4096
 CLIP_CA=CLIP-CA
 NSS_DB_PASSWD=$IPSECDIR/nsspassword
+SFTP_OUTDIR=/home/sftp/android_certs/
+CA_PEM=$SFTP_OUTDIR/ca.pem
+CLIENT_PASSWD_FILE=$SFTP_OUTDIR/client.pass
+CLIENT_CERT_P12=$SFTP_OUTDIR/client.p12
+XAUTH_INFO_FILE=$SFTP_OUTDIR/xauth_info.txt
 
 
 declare -a WORD_ARRAY
@@ -93,29 +98,34 @@ swan_config_gen() {
 }
 
 #args
-#1 output directory
-#2 connection name
+#1 connection name
 xauth_gen() {
+	XAUTH_INFO=""
+	XAUTH_USER=""
+	XAUTH_PASSWD=""
 	gen_random_word XAUTH_USER
 	gen_passwd XAUTH_PASSWD
 	XAUTH_INFO="$XAUTH_USER : XAUTH $XAUTH_PASSWD"
 	if [ "$XAUTH_INFO""x" != "x" ]
 	then
-		echo -e "$XAUTH_INFO" >> ${IPSECDIR}/${2}.secrets
+		echo -e "$XAUTH_INFO" >> ${IPSECDIR}/${1}.secrets
 	fi
-	echo $XAUTH_USER > ${1}/xauth_info.txt
-	echo $XAUTH_PASSWD >> ${1}/xauth_info.txt
+	echo $XAUTH_USER > ${XAUTH_INFO_FILE}
+	echo $XAUTH_PASSWD >> ${XAUTH_INFO_FILE}
+	chown vpn:sftp ${XAUTH_INFO_FILE}; chmod 640 ${XAUTH_INFO_FILE}
 }
 
 
 #args
 # $1 - name of the cert to export
-# $2 - base name of the output file
 cert_export() {
 	#Convert to PEM
 	certutil -L -d ${IPSECDIR} -f ${NSS_DB_PASSWD} -n "${CLIP_CA}" -r | openssl x509 -inform DER \
-		-out ${1}/ca.pem -outform PEM
+		-out ${CA_PEM} -outform PEM
 	P12_PASS=$gen_passwd
-	echo ${P12_PASS} > ${1}/${2}.pass
-	pk12util -o ${1}/${2}.p12 -n ${2} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -W ${1}/client_pass.txt
+	echo ${P12_PASS} > ${CLIENT_PASSWD_FILE}
+	chown vpn:sftp ${CLIENT_PASSWD_FILE}; chmod 640 ${CLIENT_PASSWD_FILE}
+	pk12util -o ${CLIENT_CERT_P12} -n ${1} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -W ${CLIENT_PASSWD_FILE}
+	chown vpn:sftp ${CA_CERT}; chmod 640 ${CA_CERT}
+	chown vpn:sftp ${CLIENT_CERT_P12}; chmod 640 ${CLIENT_CERT_P12}
 }

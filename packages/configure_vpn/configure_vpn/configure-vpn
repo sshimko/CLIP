@@ -36,9 +36,7 @@ CLIP_SERVER=CLIP-SERVER
 install_files() {
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
-	#TODO: Remove
-	#certutil -L -n "${CLIP_CA}" -d ${IPSECDIR} -f ${NSS_DB_PASSWORD} -a > $CA_P12
-	#mv $CA_P12 $CACERTDIR
+	chmod 640 ${IPSECDIR}/server.*
 }
 
 # args $1 - filename, $2 password
