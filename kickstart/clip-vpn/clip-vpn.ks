@@ -64,6 +64,7 @@ selinux-policy
 -selinux-policy-mls
 selinux-policy-mcs
 selinux-policy-mcs-ec2ssh
+selinux-policy-mcs-vpnadm
 clip-miscfiles
 libreswan
 configure_vpn
