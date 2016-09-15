@@ -59,12 +59,15 @@ reboot --eject
 %packages --excludedocs
 %include includes/standard-packages
 @Base
+shim
 selinux-policy
 # by default use MCS policy (selinux-policy-clip)
 -selinux-policy-mls
 selinux-policy-mcs
 selinux-policy-mcs-ec2ssh
 selinux-policy-mcs-vpnadm
+selinux-policy-mcs-ipsec
+selinux-policy-mcs-ssh
 clip-miscfiles
 libreswan
 configure_vpn
