@@ -305,7 +305,7 @@ semanage user -N -a -R vpnadm_r vpnadm_u
 semanage login -N -a -s vpnadm_u vpn
 usermod -s /usr/bin/vpn_login.py vpn
 usermod -a -G sftp vpn
-usermod --password="$HASHED_PASSWD"
+usermod --password="$HASHED_PASSWD" vpn
 chage -E -1 vpn
 
 
