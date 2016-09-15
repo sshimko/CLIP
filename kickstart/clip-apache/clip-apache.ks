@@ -190,7 +190,7 @@ semanage login -N -a -s "${USERNAME}_u" "${USERNAME}"
 if [ x"$HASHED_PASSWORD" == "x" ]; then
 	passwd --stdin "$USERNAME" <<< "$PASSWORD"
 else
-	usermod --pass="$HASHED_PASSWORD" "$USERNAME"
+	usermod --password="$HASHED_PASSWORD" "$USERNAME"
 fi
 
 # Add the user to sudoers and setup an SELinux role/type transition.

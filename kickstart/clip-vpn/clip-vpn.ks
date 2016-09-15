@@ -293,7 +293,7 @@ semanage login -N -a -s vpnadm_u sftp
 usermod -d /sftp sftp
 #the above usermod line mucks up file_contexts.homedirs, fix it
 semanage fcontext -a -e /sftp /home/sftp
-usermod --pass="$HASHED_PASSWORD" sftp
+usermod --password="$HASHED_PASSWORD" sftp
 chage -E -1 sftp
 
 useradd -m vpn
@@ -301,7 +301,7 @@ semanage user -N -a -R vpnadm_r vpnadm_u
 semanage login -N -a -s vpnadm_u vpn
 usermod -s /usr/bin/vpn_login.py vpn
 usermod -a -G sftp vpn
-usermod --pass="$HASHED_PASSWD"
+usermod --password="$HASHED_PASSWD"
 chage -E -1 vpn
 
 
