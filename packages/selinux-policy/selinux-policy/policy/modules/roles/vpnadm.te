@@ -20,21 +20,24 @@ allow vpnadm_t self:capability { setuid dac_override };
 domain_type(vpnadm_t)
 
 # need to be able to ssh in
-ssh_role_template(vpnadm, vpnadm_r, vpnadm_t)
+optional_policy(`
+	ssh_role_template(vpnadm, vpnadm_r, vpnadm_t)
+')
 
-# restart strongswan and have it run in the correct domain
-role vpnadm_r types ipsec_t;
-role vpnadm_r types ipsec_mgmt_t;
 # need to be able to run iptables when ipsec is being run vpnadm_u:vpnadm_r
-iptables_run(ipsec_t, vpnadm_r)
-ipsec_domtrans(vpnadm_t)
-ipsec_domtrans_mgmt(vpnadm_t)
-
-ipsec_read_config(vpnadm_t)
-allow vpnadm_t ipsec_conf_file_t:file write_file_perms;
-#ipsec_write_config(vpnadm_t)
-#ipsec_rw_keys(vpnadm_t)
-ipsec_mgmt_systemctl(vpnadm_t)
+optional_policy(`
+	# restart strongswan and have it run in the correct domain
+	role vpnadm_r types ipsec_t;
+	role vpnadm_r types ipsec_mgmt_t;
+	iptables_run(ipsec_t, vpnadm_r)
+	ipsec_domtrans(vpnadm_t)
+	ipsec_domtrans_mgmt(vpnadm_t)
+	ipsec_read_config(vpnadm_t)
+	allow vpnadm_t ipsec_conf_file_t:file write_file_perms;
+	#ipsec_write_config(vpnadm_t)
+	#ipsec_rw_keys(vpnadm_t)
+	ipsec_mgmt_systemctl(vpnadm_t)
+')
 
 #to copy certs into /home/sftp
 userdom_manage_user_home_content(vpnadm_t)
