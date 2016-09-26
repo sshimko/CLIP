@@ -48,7 +48,8 @@ auth --useshadow --passalgo=sha512
 #Boot with fips parameter for nss and libreswan to run in fips-y modes
 bootloader --append="fips=1"
 selinux --enforcing
-firewall --enabled
+firewall --disabled
+
 reboot --eject
 
 # DO NOT REMOVE THE FOLLOWING LINE. NON-EXISTENT WARRANTY VOID IF REMOVED.
@@ -269,6 +270,10 @@ COMMIT
 -A OUTPUT -p udp -m udp --sport 500 -j ACCEPT
 -A INPUT -p udp -m udp --dport 4500 -j ACCEPT
 -A OUTPUT -p udp -m udp --sport 4500 -j ACCEPT
+-A OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p esp -j ACCEPT
+-A OUTPUT -p esp -j ACCEPT
 COMMIT
 EOF
 
