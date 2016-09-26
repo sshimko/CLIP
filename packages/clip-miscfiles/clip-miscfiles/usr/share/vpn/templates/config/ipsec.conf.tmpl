@@ -23,12 +23,12 @@ conn %default
 	authby=rsasig
 
 conn rw-ikev2
-        ike=aes256-sha256-ecp384
+        ike=aes256-sha256-modp2048
 	ikev2=insist
 	also=clip-server
 
 conn rw-ikev1
-        ike=aes256-sha1-modp1024
+        ike=aes256-sha1-modp2048
 	ikev2=never
 	also=clip-server
 

@@ -297,6 +297,7 @@ PASSWORD="neutronbass"
 HASHED_PASSWORD='$6$314159265358$ytgatj7CAZIRFMPbEanbdi.krIJs.mS9N2JEl0jkPsCvtwC15z07JLzFLSuqiCdionNZ1XNT3gPKkjIG0TTGy1'
 
 # we need to be vpnadm_u:vpnadm_r:vpnadm_t
+semanage user -N -a -R vpnadm_r vpnadm_u
 useradd -m sftp
 semanage login -N -a -s vpnadm_u sftp
 usermod -d /sftp sftp
@@ -306,7 +307,6 @@ usermod --password="$HASHED_PASSWORD" sftp
 chage -E -1 sftp
 
 useradd -m vpn
-semanage user -N -a -R vpnadm_r vpnadm_u
 semanage login -N -a -s vpnadm_u vpn
 usermod -s /usr/bin/vpn_login.py vpn
 usermod -a -G sftp vpn
@@ -315,8 +315,9 @@ chage -E -1 vpn
 
 
 #Setup permissions that allow the vpn user to access nss data base for user certs
-chown root:vpn /etc/ipsec.d
 chmod 770 /etc/ipsec.d
+chown root:vpn /etc/ipsec.d
+
 
 #Setup DAC permissions that allow the vpn user to access the sftp dirs for cert output
 mkdir /home/sftp/android_certs

@@ -34,6 +34,8 @@ CACERTDIR=$IPSECDIR/cacerts
 CLIP_SERVER=CLIP-SERVER
 
 install_files() {
+	chmod 770 ${IPSECDIR}
+	chown root:vpn ${IPSECDIR}
         cp $IPSEC_CONF $IPSECDIR/server.conf
         cp $IPSEC_SECRETS $IPSECDIR/server.secrets
 	chmod 640 ${IPSECDIR}/server.*

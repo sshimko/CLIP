@@ -126,6 +126,6 @@ cert_export() {
 	echo ${P12_PASS} > ${CLIENT_PASSWD_FILE}
 	chown vpn:sftp ${CLIENT_PASSWD_FILE}; chmod 640 ${CLIENT_PASSWD_FILE}
 	pk12util -o ${CLIENT_CERT_P12} -n ${1} -d ${IPSECDIR} -k ${NSS_DB_PASSWD} -w ${CLIENT_PASSWD_FILE}
-	chown vpn:sftp ${CA_CERT}; chmod 640 ${CA_CERT}
+	chown vpn:sftp ${CA_PEM}; chmod 640 ${CA_PEM}
 	chown vpn:sftp ${CLIENT_CERT_P12}; chmod 640 ${CLIENT_CERT_P12}
 }
