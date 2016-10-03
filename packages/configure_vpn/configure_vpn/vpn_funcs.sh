@@ -81,20 +81,19 @@ swan_config_gen() {
 	then
 		CONN="conn ${2}\n\
 		ike=aes256-sha1-modp1024!\n\
-		esp=aes256-sha1!\n\
 		ikev2=never\n\
 		rightid=${2}\n\
 		alsoflip=clip-server"
 
 	else
 		CONN="conn ${2}\n\
-		ike=aes256-sha256-ecp384!\n\
-		esp=aes256-aes128-sha384-sha256-ecp384-ecp256!\n\
+		ike=aes-sha1,aes-sha256;dh22,dh23,dh24\n\
 		ikev2=insist\n\
 		rightid=${2}\n\
 		alsoflip=clip-server"
 	fi
 	echo -e "$CONN" >> ${IPSECDIR}/${2}.conf
+	chmod 644 ${IPSECDIR}/${2}.conf
 }
 
 #args
@@ -109,6 +108,7 @@ xauth_gen() {
 	if [ "$XAUTH_INFO""x" != "x" ]
 	then
 		echo -e "$XAUTH_INFO" >> ${IPSECDIR}/${1}.secrets
+		chmod 644 ${IPSECDIR}/${1}.secrets
 	fi
 	echo $XAUTH_USER > ${XAUTH_INFO_FILE}
 	echo $XAUTH_PASSWD >> ${XAUTH_INFO_FILE}

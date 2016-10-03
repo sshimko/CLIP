@@ -17,18 +17,19 @@ conn %default
 	dpdaction=clear
 	ike_frag=yes
 	keyingtries=1
-        auto=add
-	pfs=yes
+        auto=start
 	rekey=yes
 	authby=rsasig
 
 conn rw-ikev2
-        ike=aes256-sha256-modp2048
+        ike=aes-sha1,aes-sha256;dh22,dh23,dh24
+	phase2=esp
 	ikev2=insist
 	also=clip-server
 
 conn rw-ikev1
-        ike=aes256-sha1-modp2048
+        ike=aes-sha1,aes-sha256;dh22,dh23,dh24
+	phase2=esp
 	ikev2=never
 	also=clip-server
 
