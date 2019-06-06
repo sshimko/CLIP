@@ -27,5 +27,5 @@
 #epel = /mnt/repos/epel-pinned-revisions
 
 # NOTE: If using RHEL, *not CentOS*, you must provide the Optional repo. 
-rhel7.6 = /opt/repos/nfs/rhel-7.6-server-newest-only
-rhel7.6-optional = /opt/repos/nfs/rhel-7.6-server-optional-newest-only
+rhel7.7 = /opt/repos/nfs/rhel-7.7-server-beta
+#rhel7.6-optional = /opt/repos/nfs/rhel-7.6-server-optional-newest-only
